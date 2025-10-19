@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Happy Diwali</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b0d16;
+      --text:#ffe9a3;
+      --accent:#ff9f1a;
+      --pink:#ff5aa5;
+      --cyan:#79ffe1;
+      --retro1:#ff7a00;
+      --retro2:#ff3b3b;
+      --retro3:#ffd166;
+    }
+    html,body{
+      margin:0; padding:0; height:100%; background:var(--bg); color:var(--text); font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .wrap{
+      position:relative; min-height:100dvh; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:24px 16px 64px;
+    }
+
+    /* Header */
+    h1{
+      margin:8px 0 0; text-align:center; font-size: clamp(24px, 6vw, 44px);
+      letter-spacing:0.5px; color:var(--text); text-shadow:0 0 10px #ffbf00aa, 0 0 24px #ff8c0066;
+    }
+    .subtitle{
+      margin:6px 0 18px; font-size:clamp(14px,4.2vw,18px); opacity:0.9; text-align:center;
+    }
+
+    /* Kandil (kandila) */
+    .kandil{
+      width:140px; height:180px; position:relative; margin:16px auto 12px; filter: drop-shadow(0 8px 18px #0008);
+    }
+    .kandil .body{
+      width:100%; height:120px; background:
+        linear-gradient(135deg, #ffdb70 0%, #ffac3d 45%, #ff6a00 100%);
+      clip-path: polygon(50% 0%, 100% 30%, 100% 70%, 50% 100%, 0% 70%, 0% 30%);
+      border:2px solid #ffdca8; box-shadow: inset 0 0 18px #fff4, 0 0 18px #ffbb00aa;
+    }
+    .kandil .top{
+      width:36px; height:18px; background:#8b4513; border-radius:6px; position:absolute; left:50%; transform:translateX(-50%); top:-10px;
+      box-shadow:0 3px 0 #5b2d0c;
+    }
+    .kandil .string{
+      position:absolute; left:50%; top:-56px; width:2px; height:50px; background:linear-gradient(#ffe9a3,#ffcc66);
+      transform:translateX(-50%);
+    }
+    .tassels{
+      display:flex; gap:8px; justify-content:center; position:absolute; bottom:-18px; width:100%;
+    }
+    .tassel{ width:6px; height:34px; background:linear-gradient(#ffcd68,#ff7a00); border-radius:4px; box-shadow:0 0 6px #ffb300aa; }
+
+    /* Retro pixel fire aura behind kandil */
+    .retro-fire{
+      position:absolute; top:110px; left:50%; transform:translateX(-50%);
+      width:280px; height:120px; pointer-events:none;
+      background:
+        radial-gradient(closest-side, rgba(255,180,0,0.35), transparent 65%),
+        conic-gradient(from 0deg, var(--retro1), var(--retro2), var(--retro3), var(--retro1));
+      filter: contrast(140%) saturate(130%) blur(6px);
+      image-rendering: pixelated;
+      opacity:0.28;
+    }
+
+    /* Canvas layers */
+    canvas.bg{
+      position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;
+    }
+    canvas.fx{
+      position:fixed; inset:0; width:100%; height:100%; z-index:2; pointer-events:none;
+    }
+
+    /* Cracker CTA */
+    .cta{
+      position:relative; z-index:3; margin-top:16px; display:flex; flex-direction:column; align-items:center; gap:10px;
+    }
+    .cracker{
+      appearance:none; border:none; background:#1a1f2e; color:#fff; padding:14px 20px; border-radius:14px; font-weight:700;
+      letter-spacing:0.4px; font-size:16px;
+      box-shadow: inset 0 -2px 0 #0d1220, 0 6px 18px #0008, 0 0 14px #ff6a0055;
+      display:flex; align-items:center; gap:10px;
+    }
+    .cracker:active{ transform:translateY(1px); }
+    .spark{
+      width:22px; height:22px; border-radius:50%; background: radial-gradient(#fff, #ffd166 50%, transparent 70%);
+      box-shadow:0 0 10px #ffd166, 0 0 24px #ff9f1a;
+      animation: twinkle 1.2s infinite ease-in-out;
+    }
+    @keyframes twinkle{
+      0%,100%{ transform:scale(1); opacity:1; }
+      50%{ transform:scale(0.85); opacity:0.7; }
+    }
+    .hint{ font-size:13px; opacity:0.85; color:#ffe9a3; }
+
+    /* Rocket sprite (for launch) */
+    .rocket{
+      position:fixed; width:14px; height:34px; background: linear-gradient(#e5e5e5, #c0c0c0);
+      border-radius:6px; left:50%; top:100%; transform:translateX(-50%); z-index:2; display:none;
+      box-shadow:0 0 8px #fff8;
+    }
+    .rocket::before{
+      content:""; position:absolute; left:50%; top:-10px; transform:translateX(-50%);
+      border-left:8px solid transparent; border-right:8px solid transparent; border-bottom:10px solid #ff3b3b;
+    }
+    .rocket::after{
+      content:""; position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+      width:6px; height:18px; background: linear-gradient(#fff8, #ffbf00);
+      filter:blur(2px);
+      animation: flame 0.12s infinite;
+    }
+    @keyframes flame{
+      0%{ transform:translateX(-50%) scaleY(1); }
+      50%{ transform:translateX(-50%) scaleY(0.75); }
+      100%{ transform:translateX(-50%) scaleY(1); }
+    }
+
+    /* Footer spacing on mobile safe areas */
+    .spacer{ height:18dvh; }
+  </style>
+</head>
+<body>
+  <!-- Subtle fireworks background -->
+  <canvas class="bg" id="bg"></canvas>
+
+  <div class="wrap">
+    <div class="kandil" aria-hidden="true">
+      <div class="string"></div>
+      <div class="top"></div>
+      <div class="body"></div>
+      <div class="tassels">
+        <span class="tassel"></span>
+        <span class="tassel"></span>
+        <span class="tassel"></span>
+      </div>
+    </div>
+
+    <div class="retro-fire"></div>
+
+    <h1>Happy Diwali</h1>
+    <div class="subtitle">Let this festival light up our hearts and smiles ✨</div>
+
+    <div class="cta">
+      <button id="fireBtn" class="cracker">
+        <span class="spark" aria-hidden="true"></span>
+        Tap the cracker
+      </button>
+      <div class="hint">It will fly, burst, and reveal a surprise</div>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+
+  <!-- Foreground effects layer -->
+  <canvas class="fx" id="fx"></canvas>
+
+  <!-- Rocket element (positioned by JS) -->
+  <div id="rocket" class="rocket" aria-hidden="true"></div>
+
+  <script>
+    // Utility: device pixel ratio canvas resize
+    function fitCanvas(canvas){
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      return ctx;
+    }
+
+    // Background subtle fireworks (looping)
+    const bg = document.getElementById('bg');
+    const bgCtx = fitCanvas(bg);
+
+    function random(min,max){ return Math.random()*(max-min)+min; }
+
+    class Particle {
+      constructor(x,y,color){
+        this.x=x; this.y=y;
+        this.vx = random(-2.2,2.2);
+        this.vy = random(-3.2, -0.8);
+        this.alpha = 1;
+        this.size = random(1.5,3.2);
+        this.color = color;
+        this.life = random(36,64);
+      }
+      step(){
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.055; // gravity
+        this.vx *= 0.992;
+        this.vy *= 0.992;
+        this.alpha -= 1/this.life;
+        return this.alpha > 0;
+      }
+      draw(ctx){
+        ctx.globalAlpha = Math.max(0,this.alpha);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    let bgBursts = [];
+    function spawnBgBurst(){
+      const w = bg.clientWidth, h = bg.clientHeight;
+      const cx = random(w*0.15, w*0.85);
+      const cy = random(h*0.15, h*0.55);
+      const colors = ['#ffd166','#ff9f1a','#ff5aa5','#79ffe1','#ff3b3b'];
+      const arr = [];
+      for(let i=0;i<random(26,44);i++){
+        arr.push(new Particle(cx,cy, colors[(i%colors.length)]));
+      }
+      bgBursts.push(arr);
+    }
+
+    let bgTimer = 0;
+    function bgLoop(){
+      const w = bg.clientWidth, h = bg.clientHeight;
+      bgCtx.clearRect(0,0,w,h);
+      if(bgTimer<=0){ spawnBgBurst(); bgTimer = random(40,90); }
+      bgTimer--;
+
+      // draw/update
+      bgBursts = bgBursts.filter(burst=>{
+        for(const p of burst){ if(p.step()) p.draw(bgCtx); }
+        return burst.some(p=>p.alpha>0);
+      });
+      requestAnimationFrame(bgLoop);
+    }
+    bgLoop();
+
+    window.addEventListener('resize', ()=>{ fitCanvas(bg); fitCanvas(fx); });
+
+    // Foreground interaction: rocket launch -> explode -> redirect
+    const fx = document.getElementById('fx');
+    const fxCtx = fitCanvas(fx);
+    const rocketEl = document.getElementById('rocket');
+    const fireBtn = document.getElementById('fireBtn');
+
+    function launchFrom(button){
+      const rect = button.getBoundingClientRect();
+      const startX = rect.left + rect.width/2;
+      const startY = rect.top + rect.height/2;
+
+      rocketEl.style.display = 'block';
+      rocketEl.style.left = startX+'px';
+      rocketEl.style.top  = startY+'px';
+
+      const screenH = window.innerHeight;
+      const targetY = Math.max(80, screenH*0.25);
+
+      const duration = 900; // ms
+      const start = performance.now();
+      function anim(t){
+        const p = Math.min(1, (t-start)/duration);
+        const y = startY + (targetY - startY)*easeOutCubic(p);
+        rocketEl.style.top = y+'px';
+        if(p<1){ requestAnimationFrame(anim); } else { explode(startX, targetY); }
+      }
+      requestAnimationFrame(anim);
+    }
+
+    function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
+
+    function explode(x,y){
+      // Hide rocket
+      rocketEl.style.display='none';
+
+      // Create explosion particles on fx canvas
+      const colors = ['#ffd166','#ff9f1a','#ff5aa5','#79ffe1','#ffffff'];
+      const burst = [];
+      for(let i=0;i<88;i++){
+        const angle = Math.random()*Math.PI*2;
+        const speed = random(1.8,4.2);
+        const p = new Particle(x,y, colors[i%colors.length]);
+        p.vx = Math.cos(angle)*speed;
+        p.vy = Math.sin(angle)*speed;
+        p.size = random(1.6,3.8);
+        p.life = random(32,60);
+        burst.push(p);
+      }
+      activeBursts.push(burst);
+      if(!fxRunning) runFx();
+
+      // Redirect after brief delay
+      setTimeout(()=>{ window.location.href = 'love.html'; }, 900);
+    }
+
+    let activeBursts = [];
+    let fxRunning = false;
+    function runFx(){
+      fxRunning = true;
+      const w = fx.clientWidth, h = fx.clientHeight;
+      function loop(){
+        fxCtx.clearRect(0,0,w,h);
+        activeBursts = activeBursts.filter(burst=>{
+          for(const p of burst){ if(p.step()) p.draw(fxCtx); }
+          return burst.some(p=>p.alpha>0);
+        });
+        if(activeBursts.length>0){ requestAnimationFrame(loop); }
+        else { fxRunning=false; }
+      }
+      loop();
+    }
+
+    // Click/tap handler
+    fireBtn.addEventListener('click', ()=> launchFrom(fireBtn), {passive:true});
+    fireBtn.addEventListener('touchend', (e)=>{ e.preventDefault(); launchFrom(fireBtn); }, {passive:false});
+  </script>
+</body>
+</html>
